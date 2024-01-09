@@ -4,5 +4,8 @@
 /coverage.data
 /coverage/
 
+# Tests
+/test
+
 # Build files
 /dist

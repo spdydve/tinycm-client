@@ -1,18 +1,18 @@
-import { GetPostsByTagResponse, GetPostsResponse, Post, Tag } from "./types";
+import { Author, GetPostsByAuthorResponse, GetPostsByTagResponse, GetPostsResponse, Post, Tag } from "./types";
 
 function logError(...args: any[]) {
-  console.error("[🍊] ", ...args);
+  console.error("[ERROR] ", ...args);
 }
 
 function throwError(msg: string, ...args: any[]) {
   logError(msg, ...args);
-  throw new Error("[🚨] " + msg);
+  throw new Error(msg);
 }
 
 function createDebugger(debug: boolean) {
   return (...args: any[]) => {
     if (debug) {
-      console.log("[🍊] ", ...args);
+      console.log("[DEBUG]", ...args);
     }
   };
 }
@@ -48,7 +48,7 @@ function setConfig(apiKey: string, projectId: string, version: string, _baseUrl?
   };
 }
 
-export function tinycmClient({
+export function createClient({
   apiKey,
   projectId,
   version,
@@ -56,7 +56,6 @@ export function tinycmClient({
   _baseUrl
 }: ClientConfiguration) {
 
-  // const {apiKey, projectId, version, debug, _baseUrl} = configuration
   const clientConfig = setConfig(apiKey, projectId, version, _baseUrl);
   const log = createDebugger(debug || false);
   log("createClient ", clientConfig);
@@ -68,7 +67,8 @@ export function tinycmClient({
       path +
       (!!params ? `?${new URLSearchParams(params as any).toString()}` : "");
 
-    console.log({url, clientConfig, params})
+    log({url, path, params})
+
     const response = await fetch(url, {headers: clientConfig.headers})
 
     if (!response.ok) {
@@ -80,29 +80,14 @@ export function tinycmClient({
 
   return {
     posts: {
-      getAll: async function(limit = 10, page = 0): Promise<GetPostsResponse> {
+      getAll: async function(params?: {limit?: number, page?: number} | undefined): Promise<GetPostsResponse> {
         return await request(
           '/posts',
           {
             sort: 'publishedDate:desc',
-            limit: limit,
-            page: page
+            limit: params?.limit || 10,
+            page: params?.page || 0
           }
-        )
-      },
-      getByTag: async function(tag: string): Promise<GetPostsByTagResponse> {
-        return await request(
-          '/tags/' + tag,
-        )
-      },
-      getByAuthor: async function(author: string): Promise<GetPostsByTagResponse> {
-        return await request(
-          '/author/' + author,
-        )
-      },
-      getSlugs: async function(): Promise<{slug: string}[]> {
-        return await request(
-          '/posts/slugs',
         )
       },
       getBySlug: async function(slug: string): Promise<Post> {
@@ -110,29 +95,51 @@ export function tinycmClient({
           '/posts/' + slug,
         )
       },
+      getAllByTag: async function(tag: string, params?: {limit?: number, page?: number} | undefined): Promise<GetPostsByTagResponse> {
+        return await request(
+          '/posts/tag/' + tag,
+          {
+            limit: params?.limit || 25,
+            page: params?.page || 0
+          }
+        )
+      },
+      getAllByAuthor: async function(author: string, params?: {limit?: number, page?: number} | undefined): Promise<GetPostsByAuthorResponse> {
+        return await request(
+          '/posts/author/' + author,
+          {
+            limit: params?.limit || 10,
+            page: params?.page || 0
+          }
+        )
+      },
+      getAllSlugs: async function(): Promise<string[]> {
+        return await request(
+          '/posts/slugs',
+        )
+      },
     },
     authors: {
-      getAll: async function(limit = 10, page = 0): Promise<Tag[]> {
+      getAll: async function(params?: {limit?: number, page?: number} | undefined): Promise<Author[]> {
         return await request(
           '/authors',
           {
-            limit: limit,
-            page: page
+            limit: params?.limit || 10,
+            page: params?.page || 0
           }
         )
       },
     },
     tags: {
-      getAll: async function(limit = 10, page = 0): Promise<Tag[]> {
+      getAll: async function(params?: {limit?: number, page?: number} | undefined): Promise<Tag[]> {
         return await request(
           '/tags',
           {
-            limit: limit,
-            page: page
+            limit: params?.limit || 25,
+            page: params?.page || 0
           }
         )
       },
     },
   };
 }
-
