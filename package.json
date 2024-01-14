@@ -1,6 +1,6 @@
 {
   "name": "tinycm-client",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "The typescript client for TinyCM",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -9,7 +9,7 @@
     "test": "echo \"Testing\" && npx ts-node test/index",
     "dev": "echo \"Running\" && npx ts-node src/index",
     "build": "tsc",
-    "publish": "npm publish --access public",
+    "publish": "npm publish",
     "publish:beta": "npm publish --access public --tag beta"
   },
   "keywords": [
