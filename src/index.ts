@@ -1,4 +1,11 @@
-import { Author, GetPostsByAuthorResponse, GetPostsByTagResponse, GetPostsResponse, Post, Tag } from "./types";
+import {
+  Author,
+  GetPostsByAuthorResponse,
+  GetPostsByTagResponse,
+  GetPostsResponse,
+  Post,
+  Tag,
+} from "./types";
 
 function logError(...args: any[]) {
   console.error("[ERROR] ", ...args);
@@ -20,12 +27,17 @@ function createDebugger(debug: boolean) {
 export type ClientConfiguration = {
   apiKey: string;
   projectId: string;
-  version: 'v1'
+  version: "v1";
   debug?: boolean;
   _baseUrl?: string;
 };
 
-function setConfig(apiKey: string, projectId: string, version: string, _baseUrl?: string): { url: string, headers: HeadersInit } {
+function setConfig(
+  apiKey: string,
+  projectId: string,
+  version: string,
+  _baseUrl?: string
+): { url: string; headers: HeadersInit } {
   if (!apiKey) {
     throwError("apiKey is required");
   }
@@ -36,15 +48,15 @@ function setConfig(apiKey: string, projectId: string, version: string, _baseUrl?
 
   const baseUrl = _baseUrl ?? "https://tinycm.com";
 
-  const apiUrl = `${baseUrl}/api/${version}/content`
-  
+  const apiUrl = `${baseUrl}/api/${version}/content`;
+
   return {
     url: apiUrl,
     headers: {
-      'x-api-key' : apiKey,
-      'x-project-id': projectId,
-      'Content-Type': 'application/json'
-    }
+      "x-api-key": apiKey,
+      "x-project-id": projectId,
+      "Content-Type": "application/json",
+    },
   };
 }
 
@@ -53,23 +65,21 @@ export function createClient({
   projectId,
   version,
   debug,
-  _baseUrl
+  _baseUrl,
 }: ClientConfiguration) {
-
   const clientConfig = setConfig(apiKey, projectId, version, _baseUrl);
   const log = createDebugger(debug || false);
   log("createClient ", clientConfig);
 
-  async function request(path: string, params?: Object ) {
-
+  async function request(path: string, params?: Object) {
     const url =
       clientConfig.url +
       path +
       (!!params ? `?${new URLSearchParams(params as any).toString()}` : "");
 
-    log({url, path, params})
+    log({ url, path, params });
 
-    const response = await fetch(url, {headers: clientConfig.headers})
+    const response = await fetch(url, { headers: clientConfig.headers });
 
     if (!response.ok) {
       throwError("Error fetching data from API", response);
@@ -80,65 +90,58 @@ export function createClient({
 
   return {
     posts: {
-      getAll: async function(params?: {limit?: number, page?: number} | undefined): Promise<GetPostsResponse> {
-        return await request(
-          '/posts',
-          {
-            sort: 'publishedDate:desc',
-            limit: params?.limit || 10,
-            page: params?.page || 0
-          }
-        )
+      getAll: async function (
+        params?: { limit?: number; page?: number } | undefined
+      ): Promise<GetPostsResponse> {
+        return await request("/posts", {
+          sort: "publishedDate:desc",
+          limit: params?.limit || 10,
+          page: params?.page || 0,
+        });
       },
-      getBySlug: async function(slug: string): Promise<Post> {
-        return await request(
-          '/posts/' + slug,
-        )
+      getBySlug: async function (slug: string): Promise<Post> {
+        return await request("/posts/" + slug);
       },
-      getAllByTag: async function(tag: string, params?: {limit?: number, page?: number} | undefined): Promise<GetPostsByTagResponse> {
-        return await request(
-          '/posts/tag/' + tag,
-          {
-            limit: params?.limit || 25,
-            page: params?.page || 0
-          }
-        )
+      getAllByTag: async function (
+        tag: string,
+        params?: { limit?: number; page?: number } | undefined
+      ): Promise<GetPostsByTagResponse> {
+        return await request("/posts/tag/" + tag, {
+          limit: params?.limit || 25,
+          page: params?.page || 0,
+        });
       },
-      getAllByAuthor: async function(author: string, params?: {limit?: number, page?: number} | undefined): Promise<GetPostsByAuthorResponse> {
-        return await request(
-          '/posts/author/' + author,
-          {
-            limit: params?.limit || 10,
-            page: params?.page || 0
-          }
-        )
+      getAllByAuthor: async function (
+        author: string,
+        params?: { limit?: number; page?: number } | undefined
+      ): Promise<GetPostsByAuthorResponse> {
+        return await request("/posts/author/" + author, {
+          limit: params?.limit || 10,
+          page: params?.page || 0,
+        });
       },
-      getAllSlugs: async function(): Promise<string[]> {
-        return await request(
-          '/posts/slugs',
-        )
+      getAllSlugs: async function (): Promise<string[]> {
+        return await request("/posts/slugs");
       },
     },
     authors: {
-      getAll: async function(params?: {limit?: number, page?: number} | undefined): Promise<Author[]> {
-        return await request(
-          '/authors',
-          {
-            limit: params?.limit || 10,
-            page: params?.page || 0
-          }
-        )
+      getAll: async function (
+        params?: { limit?: number; page?: number } | undefined
+      ): Promise<Author[]> {
+        return await request("/authors", {
+          limit: params?.limit || 10,
+          page: params?.page || 0,
+        });
       },
     },
     tags: {
-      getAll: async function(params?: {limit?: number, page?: number} | undefined): Promise<Tag[]> {
-        return await request(
-          '/tags',
-          {
-            limit: params?.limit || 25,
-            page: params?.page || 0
-          }
-        )
+      getAll: async function (
+        params?: { limit?: number; page?: number } | undefined
+      ): Promise<Tag[]> {
+        return await request("/tags", {
+          limit: params?.limit || 25,
+          page: params?.page || 0,
+        });
       },
     },
   };
