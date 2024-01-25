@@ -1,6 +1,6 @@
 {
   "name": "tinycm-client",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "The typescript client for TinyCM",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
