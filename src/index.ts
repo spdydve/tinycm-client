@@ -107,6 +107,7 @@ export function createClient({
         params?: { limit?: number; page?: number } | undefined
       ): Promise<GetPostsByTagResponse> {
         return await request("/posts/tag/" + tag, {
+          sort: 'publishedDate:desc',
           limit: params?.limit || 25,
           page: params?.page || 0,
         });
@@ -116,6 +117,7 @@ export function createClient({
         params?: { limit?: number; page?: number } | undefined
       ): Promise<GetPostsByAuthorResponse> {
         return await request("/posts/author/" + author, {
+          sort: 'publishedDate:desc',
           limit: params?.limit || 10,
           page: params?.page || 0,
         });
